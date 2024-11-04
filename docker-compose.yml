@@ -1,0 +1,13 @@
+version: '3'
+
+services:
+  frontend:
+    image: streaming-music-frontend:1.0.0
+    build:
+      context: .
+      dockerfile: ./docker/frontend/Dockerfile
+    ports:
+      - "3000:3000"
+    container_name: streaming-music-frontend
+
+

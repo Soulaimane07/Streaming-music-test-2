@@ -1,0 +1,48 @@
+name: CI/CD Frontend Pipeline
+
+on:
+  push:
+    branches:
+      - dev  # Target branch for CI/CD pipeline
+    paths:
+      - frontend/**
+      - docker/frontend/**
+      - 'docker-compose.yml'
+      - .github/workflows/*-frontend.yml
+
+jobs:
+  build:
+    name: Build and Deploy Frontend
+    runs-on: ubuntu-latest
+
+    env:
+      REGISTRY: docker.io    # Use Docker Hub, or change to a different registry
+      IMAGE_NAME: streaming-music-frontend
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push Docker image
+        run: |
+          docker build -t $REGISTRY/$IMAGE_NAME:latest -f ./docker/frontend/Dockerfile .
+          docker push $REGISTRY/$IMAGE_NAME:latest
+
+      - name: Deploy to server
+        env:
+          SSH_KEY: ${{ secrets.DOCKERHUB_SSH_KEY }}
+          REGISTRY: docker.io
+          IMAGE_NAME: streaming-music-frontend
+        run: |
+          ssh -o StrictHostKeyChecking=no -i $DOCKERHUB_SSH_KEY user@server <<EOF
+            docker pull $REGISTRY/$IMAGE_NAME:latest
+            docker stop streaming-music-frontend || true
+            docker rm streaming-music-frontend || true
+            docker run -d -p 3000:3000 --name streaming-music-frontend $REGISTRY/$IMAGE_NAME:latest
+          EOF
