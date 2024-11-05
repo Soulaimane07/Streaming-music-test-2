@@ -13,7 +13,7 @@ on:
 jobs:
   build:
     name: Build, Push, and Deploy Frontend Locally
-    runs-on: ubuntu-latest  # Change to 'self-hosted' if using a local machine runner
+    runs-on: self-hosted  # Specify your self-hosted runner
 
     env:
       REGISTRY: docker.io    # Use Docker Hub, or change to a different registry
@@ -35,7 +35,6 @@ jobs:
           docker push $REGISTRY/$IMAGE_NAME:latest
 
       - name: Pull and Run Docker Container Locally
-        if: runner.os == 'Linux'  # Use this for self-hosted runners only
         run: |
           # Define Docker Hub image name
           IMAGE_NAME="$REGISTRY/$IMAGE_NAME:latest"
