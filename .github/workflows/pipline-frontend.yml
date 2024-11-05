@@ -17,7 +17,7 @@ jobs:
 
     env:
       REGISTRY: docker.io    # Use Docker Hub, or change to a different registry
-      IMAGE_NAME: DOCKERHUB_USERNAME/streaming-music-frontend
+      IMAGE_NAME: ${{ secrets.DOCKERHUB_USERNAME }}/streaming-music-frontend
 
     steps:
       - name: Checkout code
@@ -38,7 +38,7 @@ jobs:
         env:
           SSH_KEY: ${{ secrets.DOCKERHUB_SSH_KEY }}
           REGISTRY: docker.io
-          IMAGE_NAME: streaming-music-frontend
+          IMAGE_NAME: ${{ secrets.DOCKERHUB_USERNAME }}/streaming-music-frontend
         run: |
           ssh -o StrictHostKeyChecking=no -i $DOCKERHUB_SSH_KEY user@server <<EOF
             docker pull $REGISTRY/$IMAGE_NAME:latest
