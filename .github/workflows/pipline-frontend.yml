@@ -3,7 +3,7 @@ name: CI/CD Frontend Pipeline
 on:
   push:
     branches:
-      - dev
+      - dev  # Target branch for CI/CD pipeline
     paths:
       - frontend/**
       - docker/frontend/**
@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      REGISTRY: docker.io
+      REGISTRY: docker.io    # Use Docker Hub, or change to a different registry
       IMAGE_NAME: ${{ secrets.DOCKERHUB_USERNAME }}/streaming-music-frontend
 
     steps:
@@ -34,22 +34,9 @@ jobs:
           docker build -t $REGISTRY/$IMAGE_NAME:latest -f ./docker/frontend/Dockerfile .
           docker push $REGISTRY/$IMAGE_NAME:latest
 
-      - name: Set up SSH key for deployment
+      - name: Run container locally
         run: |
-          echo "${{ secrets.DOCKERHUB_SSH_KEY }}" > ssh_key
-          chmod 600 ssh_key
-
-      - name: Deploy to server
-        env:
-          REGISTRY: docker.io
-          IMAGE_NAME: ${{ secrets.DOCKERHUB_USERNAME }}/streaming-music-frontend
-        run: |
-          ssh -o StrictHostKeyChecking=no -i ssh_key user@server <<EOF
-            docker pull $REGISTRY/$IMAGE_NAME:latest
-            docker stop streaming-music-frontend || true
-            docker rm streaming-music-frontend || true
-            docker run -d -p 3000:3000 --name streaming-music-frontend $REGISTRY/$IMAGE_NAME:latest
-          EOF
-
-      - name: Clean up SSH key
-        run: rm ssh_key
+          docker pull $REGISTRY/$IMAGE_NAME:latest
+          docker stop streaming-music-frontend || true
+          docker rm streaming-music-frontend || true
+          docker run -d -p 3000:3000 --name streaming-music-frontend $REGISTRY/$IMAGE_NAME:latest
