@@ -17,7 +17,7 @@ jobs:
 
     env:
       REGISTRY: docker.io    # Use Docker Hub, or change to a different registry
-      IMAGE_NAME: streaming-music-frontend
+      IMAGE_NAME: DOCKERHUB_USERNAME/streaming-music-frontend
 
     steps:
       - name: Checkout code
